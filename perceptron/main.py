@@ -2,6 +2,23 @@ import torch
 import matplotlib.pyplot as plt
 # --- 1. DATA AND HYPERPARAMETER SETUP ---
 
+# Linearly Separable Dataset 
+# AND example
+X = torch.tensor([
+    [0.0, 0.0],  # Point 1
+    [0.0, 1.0],  # Point 2
+    [1.0, 0.0],  # Point 3
+    [1.0, 1.0]   # Point 4
+])
+T = torch.tensor([0.0, 0.0, 0.0, 1.0]) # Targets (Desired Outputs)
+
+# Parameters
+w = torch.tensor([0.0, 1.0])  # Initial weights
+b = torch.tensor(-1.0)         # Initial bias
+n = 1.0                     # Learning rate
+max_epochs = 100              # Safety limit to prevent infinite loops
+
+'''
 # Linearly Separable Dataset
 X = torch.tensor([
     [1.0, 1.0],  # Point 1
@@ -15,7 +32,8 @@ T = torch.tensor([1.0, 1.0, 0.0, 0.0]) # Targets (Desired Outputs)
 w = torch.tensor([0.1, 0.1])  # Initial weights
 b = torch.tensor(0.0)         # Initial bias
 n = 0.1                     # Learning rate
-max_epochs = 100              # Safety limit to prevent infinite loops
+max_epochs = 100              # Safety limit to prevent infinite loops '''
+
 
 print(f"Dataset X:\n{X}")
 print(f"Targets T: {T}\n")
@@ -38,20 +56,18 @@ with torch.no_grad():
 
 # --- 2. PERCEPTRON HELPER FUNCTION ---
 
-def step_function(z, threshold=0.0, high=1.0, low=0.0):
-    """Perceptron Activation Function (Step/Threshold)
-
-    Returns `high` if z >= threshold, and `low` otherwise. Works for scalars and tensors.
-    Defaults to {0,1} targets with threshold at 0.
-    """
-    highs = torch.full_like(z, fill_value=high, dtype=z.dtype)
-    lows = torch.full_like(z, fill_value=low, dtype=z.dtype)
-    return torch.where(z >= threshold, highs, lows)
+def step_function(z):
+    """Binary step: returns 1 if z > 0 else 0. Works for scalars and tensors."""
+    ones = torch.ones_like(z, dtype=z.dtype)
+    zeros = torch.zeros_like(z, dtype=z.dtype)
+    return torch.where(z > 0, ones, zeros)
 
 # --- 3. TRAINING LOOP ---
 
 for epoch in range(1, max_epochs + 1):
     misclassifications = 0
+    print(f"\n--- Epoch {epoch} start ---")
+    print(f"Starting weights: w={w.tolist()}, b={b.item():.6f}")
     
     # Iterate over EACH data point (Stochastic/Online Learning)
     for i in range(len(X)):
@@ -62,10 +78,17 @@ for epoch in range(1, max_epochs + 1):
         z = torch.dot(w, x_i) + b
         
         # 2. Output
-        y = step_function(z, threshold=0.0, high=1.0, low=0.0)
+        y = step_function(z)
 
         # 3. Error Calculation
         error = t_i - y
+
+        # Debug prints for current sample calculations
+        print(f"  Sample {i+1}:")
+        print(f"    x_i = {x_i.tolist()}, t_i = {t_i.item():.1f}")
+        print(f"    z = w·x_i + b = {z.item():.6f}")
+        print(f"    y = step(z) = {y.item():.1f}")
+        print(f"    error = t_i - y = {error.item():.1f}")
 
         # 4. Weight Adjustment (ONLY if error occurs)
         if error.item() != 0:
@@ -77,6 +100,10 @@ for epoch in range(1, max_epochs + 1):
             
             w = w + delta_w
             b = b + delta_b
+            print(f"    update -> Δw = {delta_w.tolist()}, Δb = {delta_b.item():.1f}")
+            print(f"    updated -> w = {w.tolist()}, b = {b.item():.6f}")
+        else:
+            print("    no update (correct classification)")
 
     print(f"Epoch {epoch}: {misclassifications} misclassifications.")
 
@@ -98,7 +125,7 @@ print(f"Total Epochs: {epoch}")
 print("="*40)
 
 # Test the final dataset
-final_predictions = step_function(torch.matmul(X, w) + b, threshold=0.0, high=1.0, low=0.0)
+final_predictions = step_function(torch.matmul(X, w) + b)
 print(f"Final Predictions: {final_predictions}")
 print(f"Original Targets:  {T}")
 
