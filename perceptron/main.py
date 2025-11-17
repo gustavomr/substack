@@ -1,9 +1,9 @@
 import torch
 import matplotlib.pyplot as plt
-# --- 1. DATA AND HYPERPARAMETER SETUP ---
 
-# Linearly Separable Dataset 
-# AND example
+# --- 1. DATA AND HYPERPARAMETER SETUP --- #
+
+# Linearly Separable Dataset - AND logical example
 X = torch.tensor([
     [0.0, 0.0],  # Point 1
     [0.0, 1.0],  # Point 2
@@ -14,8 +14,8 @@ T = torch.tensor([0.0, 0.0, 0.0, 1.0]) # Targets (Desired Outputs)
 
 # Parameters
 w = torch.tensor([0.0, 1.0])  # Initial weights
-b = torch.tensor(-1.0)         # Initial bias
-n = 1.0                     # Learning rate
+b = torch.tensor(-1.0)        # Initial bias
+n = 1.0                       # Learning rate
 max_epochs = 100              # Safety limit to prevent infinite loops
 
 '''
@@ -31,7 +31,7 @@ T = torch.tensor([1.0, 1.0, 0.0, 0.0]) # Targets (Desired Outputs)
 # Parameters
 w = torch.tensor([0.1, 0.1])  # Initial weights
 b = torch.tensor(0.0)         # Initial bias
-n = 0.1                     # Learning rate
+n = 0.1                       # Learning rate
 max_epochs = 100              # Safety limit to prevent infinite loops '''
 
 
@@ -39,7 +39,7 @@ print(f"Dataset X:\n{X}")
 print(f"Targets T: {T}\n")
 print("-" * 40)
 
-# --- Quick plot of datapoints colored by target (0/1) ---
+# --- Quick plot of datapoints colored by target (0/1) --- #
 with torch.no_grad():
     fig, ax = plt.subplots(figsize=(5, 4))
     for label, color in [(0.0, 'tab:blue'), (1.0, 'tab:orange')]:
@@ -54,7 +54,7 @@ with torch.no_grad():
     plt.tight_layout()
     plt.show()
 
-# --- 2. PERCEPTRON HELPER FUNCTION ---
+# --- 2. PERCEPTRON HELPER FUNCTION --- #
 
 def step_function(z):
     """Binary step: returns 1 if z > 0 else 0. Works for scalars and tensors."""
@@ -62,7 +62,7 @@ def step_function(z):
     zeros = torch.zeros_like(z, dtype=z.dtype)
     return torch.where(z > 0, ones, zeros)
 
-# --- 3. TRAINING LOOP ---
+# --- 3. TRAINING LOOP --- #
 
 for epoch in range(1, max_epochs + 1):
     misclassifications = 0
@@ -71,16 +71,16 @@ for epoch in range(1, max_epochs + 1):
     
     # Iterate over EACH data point (Stochastic/Online Learning)
     for i in range(len(X)):
-        x_i = X[i]
-        t_i = T[i]
+        x_i = X[i] # Input vector
+        t_i = T[i] # Target vector
 
-        # 1. Forward Pass (Net Input Calculation)
+        # 1. Forward Pass (Weighted sum of inputs + bias)
         z = torch.dot(w, x_i) + b
         
-        # 2. Output
+        # 2. Output prediction(Step function activation)
         y = step_function(z)
 
-        # 3. Error Calculation
+        # 3. Error Calculation (Target - Output prediction)
         error = t_i - y
 
         # Debug prints for current sample calculations
@@ -94,7 +94,7 @@ for epoch in range(1, max_epochs + 1):
         if error.item() != 0:
             misclassifications += 1
             
-            # Perceptron Update Rule: Delta_w = n * Error * x_i
+            # Perceptron Update Rule
             delta_w = n * error * x_i
             delta_b = n * error
             
@@ -107,7 +107,7 @@ for epoch in range(1, max_epochs + 1):
 
     print(f"Epoch {epoch}: {misclassifications} misclassifications.")
 
-    # Stopping Condition: Convergence
+    # Stopping Condition: Convergence or max_epochs reached
     if misclassifications == 0:
         print("\n*** CONVERGENCE ACHIEVED! ***")
         break

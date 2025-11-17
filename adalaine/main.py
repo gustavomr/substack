@@ -2,10 +2,9 @@ import torch
 import matplotlib.pyplot as plt
 import numpy as np
 
-# --- 1. DATA AND HYPERPARAMETER SETUP ---
+# --- 1. DATA AND HYPERPARAMETER SETUP ---#
 
-# Linearly Separable Dataset 
-# AND example
+# Linearly Separable Dataset AND example
 X = torch.tensor([
     [0.0, 0.0],  # Point 1
     [0.0, 1.0],  # Point 2
@@ -29,22 +28,22 @@ T = torch.tensor([1.0, 1.0, 0.0, 0.0], dtype=torch.float32) # Targets (Desired O
 # Parameters
 w = torch.tensor([0.0, 1.0], dtype=torch.float32)  # Initial weights
 b = torch.tensor(-1.0, dtype=torch.float32)         # Initial bias
-n = 0.01                    # **ADALINE often needs a smaller learning rate (n) for stability**
-max_epochs = 1000            # Total iterations
+n = 0.01                    # ADALINE often needs a smaller learning rate (n) for stability
+max_epochs = 1000           # Total iterations
 
 print(f"Dataset X:\n{X}")
 print(f"Targets T: {T}\n")
 print("-" * 40)
 
-# --- 2. ADALINE HELPER FUNCTION (Step is ONLY for prediction) ---
+# --- 2. ADALINE HELPER FUNCTION (Step is ONLY for prediction) --- #
 
-def step_function(z, threshold=0.5, high=1.0, low=0.0):
-    """Step Function (Used ONLY for final classification/prediction)"""
-    highs = torch.full_like(z, fill_value=high, dtype=z.dtype)
-    lows = torch.full_like(z, fill_value=low, dtype=z.dtype)
-    return torch.where(z >= threshold, highs, lows)
+def step_function(z):
+    """Binary step: returns 1 if z > 0 else 0. Works for scalars and tensors."""
+    ones = torch.ones_like(z, dtype=z.dtype)
+    zeros = torch.zeros_like(z, dtype=z.dtype)
+    return torch.where(z > 0, ones, zeros)
 
-# --- 3. TRAINING LOOP (ADALINE using Delta Rule/LMS with SGD) ---
+# --- 3. TRAINING LOOP (ADALINE using Delta Rule/LMS with SGD) --- #
 
 all_mse_losses = []
 
@@ -64,7 +63,7 @@ for epoch in range(1, max_epochs + 1):
         y = z
         
         # 3. Error Calculation (Continuous Error)
-        # Error = Target - Raw Net Input (z)
+        # Error = output prediction - target
         error = y - t_i
         current_errors.append(error.item())
 
@@ -74,7 +73,7 @@ for epoch in range(1, max_epochs + 1):
         # by absorbing them into the learning rate 'n'.
         
         delta_w = n * error * x_i
-        delta_b = n * error # Bias input is implicitly 1
+        delta_b = n * error 
         
         w = w - delta_w
         b = b - delta_b
@@ -103,7 +102,7 @@ print("="*40)
 
 # Test the final dataset
 final_net_inputs = torch.matmul(X, w) + b
-final_predictions = step_function(final_net_inputs, threshold=0.5, high=1.0, low=0.0)
+final_predictions = step_function(final_net_inputs)
 print(f"Final Net Inputs (z): {final_net_inputs}")
 print(f"Final Predictions:    {final_predictions}")
 print(f"Original Targets:     {T}")
