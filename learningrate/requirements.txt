@@ -1,3 +1,2 @@
-torch==2.2.2
 matplotlib==3.10.7
 numpy2==1.26.4
