@@ -116,17 +116,6 @@ def train(config: RunConfig) -> tuple[list[float], float]:
     )
     return losses, elapsed
 
-
-def loss_metrics(losses: list[float], speed_window: int = 5, tail_window: int = 10) -> tuple[float, float]:
-    if not losses:
-        return 0.0, 0.0
-    speed_idx = min(speed_window - 1, len(losses) - 1)
-    initial_drop = losses[0] - losses[speed_idx]
-    tail = losses[-min(tail_window, len(losses)) :]
-    volatility = statistics.pstdev(tail) if len(tail) > 1 else 0.0
-    return initial_drop, volatility
-
-
 def plot_losses(named_losses: list[tuple[str, list[float]]]) -> None:
     if not named_losses:
         return
@@ -148,13 +137,10 @@ if __name__ == "__main__":
     results = []
     for run in RUNS:
         losses, elapsed = train(run)
-        initial_drop, volatility = loss_metrics(losses)
         results.append({
             "run": run,
             "losses": losses,
             "elapsed": elapsed,
-            "initial_drop": initial_drop,
-            "volatility": volatility,
         })
 
     print(
