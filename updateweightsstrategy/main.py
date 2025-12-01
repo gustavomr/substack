@@ -1,15 +1,6 @@
-"""Compare SGD, mini-batch GD, and batch GD on a toy regression problem.
-
-Run: python main.py
-"""
-
-from __future__ import annotations
-
 import math
 from dataclasses import dataclass
 from time import perf_counter
-import statistics
-
 import matplotlib.pyplot as plt
 import torch
 
@@ -126,7 +117,8 @@ def plot_losses(named_losses: list[tuple[str, list[float]]]) -> None:
     plt.xlabel("Epoch")
     plt.ylabel("MSE Loss")
     plt.title("Training loss per epoch")
-    plt.ylim(0, 2)
+    #Change this to see how SGD is noisy
+    #plt.ylim(0, 2)
     plt.legend()
     plt.grid(True, linestyle="--", alpha=0.4)
     plt.tight_layout()
