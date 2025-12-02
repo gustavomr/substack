@@ -3,4 +3,3 @@ matplotlib==3.10.7
 numpy==1.26.4
 kaggle==1.8.2
 pandas==2.3.3
-scikit-learn==1.5.2 
