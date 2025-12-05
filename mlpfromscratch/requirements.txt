@@ -1,0 +1,3 @@
+nnfs
+matplotlib
+torch
